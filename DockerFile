@@ -1,0 +1,6 @@
+#FROM openjdk:11-jre-slim-stretch
+#ARG NAME=iportal-server
+#ADD build/libs/${NAME}*.jar app.jar
+#EXPOSE 80
+#ENV SERVER_PORT=80
+#ENTRYPOINT ["/usr/bin/java", "-jar", "/app.jar"]

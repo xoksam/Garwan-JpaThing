@@ -3,11 +3,13 @@ package garwan.Project.model.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
+@ToString
 @Table(name = "orders")
 public class Order {
 
@@ -31,4 +33,5 @@ public class Order {
         this.title = title;
         this.customer = customer;
     }
+
 }

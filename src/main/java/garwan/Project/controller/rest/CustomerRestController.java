@@ -3,6 +3,8 @@ package garwan.Project.controller.rest;
 import garwan.Project.model.entities.Customer;
 import garwan.Project.model.repository.MyRepo;
 import lombok.Data;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,15 +27,15 @@ public class CustomerRestController {
     @DeleteMapping("/{id}")
     @Transactional
     public Customer deleteCustomer(@PathVariable Long id) {
-//        if(customer == null) throw new CustomNotFoundException("Customer with id " + id + " not found");
         return customerRepo.delete(id);
     }
 
+
     @GetMapping("/all")
     @Transactional
-    public List<Customer> getAllFilteredCustomers(Filter filter) {
+    public Page<Customer> getAllCustomers(Filter filter, Pageable pageable) {
 
-        return customerRepo.listAll(filter);
+        return customerRepo.listByPage(filter, pageable);
     }
 
     @PutMapping("/update/{id}")

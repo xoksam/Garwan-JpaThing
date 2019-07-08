@@ -2,6 +2,7 @@ package garwan.Project.model.repository;
 
 import garwan.Project.model.exceptions.CustomNotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,12 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
 
     private EntityManager em;
     private Class<T> clazz;
+    private String SELECT_ALL_STATEMENT;
 
     public MyRepoImpl(EntityManager em, Class<T> clazz) {
         this.em = em;
         this.clazz = clazz;
+        this.SELECT_ALL_STATEMENT =  "SELECT e FROM " + clazz.getSimpleName() + " e ";
     }
 
     @Override
@@ -55,7 +58,7 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
     public List<T> listAll(F filter) {
         String whereStatement = (createWhereStatement(filter));
 
-        var query = em.createQuery("SELECT e FROM " + clazz.getSimpleName() + " e " + whereStatement, clazz);
+        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement, clazz);
 
         return query.getResultList();
     }
@@ -63,13 +66,24 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
     @Override
     public Page<T> listByPage(Pageable pageable) {
 
-        return null;
+        return listByPage(null, pageable);
     }
 
     @Override
     public Page<T> listByPage(F filter, Pageable pageable) {
-        
-        return null;
+        String whereStatement = createWhereStatement(filter);
+
+        Long count = (Long) em.createQuery("SELECT COUNT(e) FROM " + this.clazz.getSimpleName() + " e " + whereStatement).getSingleResult();
+
+        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+            query.setMaxResults(pageable.getPageSize());
+        }
+
+        List<T> content = query.getResultList();
+
+        return new PageImpl<>(content, pageable, count);
     }
 
     private boolean isNumber(Object o) {

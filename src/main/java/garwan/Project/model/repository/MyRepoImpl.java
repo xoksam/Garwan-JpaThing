@@ -41,7 +41,7 @@ public class MyRepoImpl<T> implements MyRepo<T> {
     @Override
     public List<T> listAll() {
         var query = em.createQuery("SELECT e FROM " + clazz.getSimpleName() + " e", clazz);
-        
+
         return query.getResultList();
     }
 }

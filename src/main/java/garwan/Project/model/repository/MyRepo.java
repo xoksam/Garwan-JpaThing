@@ -11,5 +11,7 @@ public interface MyRepo<T> {
 
     List<T> listAll();
 
+//    List<T> removeAll(List<T> list);
+
     T findById(Long id);
 }

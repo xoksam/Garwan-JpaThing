@@ -1,6 +1,7 @@
 package garwan.Project.controller.rest;
 
 import garwan.Project.model.entities.Customer;
+import garwan.Project.model.entities.Order;
 import garwan.Project.model.repository.MyRepo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -15,24 +16,26 @@ import static garwan.Project.controller.rest.RestConstants.CUSTOMER_PATH;
 @RequestMapping(API_PREFIX + CUSTOMER_PATH)
 public class CustomerRestController {
 
-    private final MyRepo<Customer> repo;
+    private final MyRepo<Customer> customerRepo;
 
-    public CustomerRestController(MyRepo<Customer> repo) {
-        this.repo = repo;
+    public CustomerRestController(MyRepo<Customer> customerRepo) {
+        this.customerRepo = customerRepo;
     }
 
     @DeleteMapping("/delete/{id}")
     @Transactional
     public Customer deleteCustomer(@PathVariable Long id) {
 
-        return repo.delete(id);
+//        if(customer == null) throw new CustomNotFoundException("Customer with id " + id + " not found");
+
+        return customerRepo.delete(id);
     }
 
     @GetMapping("/all")
     @Transactional
     public List<Customer> getAllCustomers() {
 
-        return repo.listAll();
+        return customerRepo.listAll();
     }
 
     @PutMapping("/update/{id}")
@@ -41,14 +44,14 @@ public class CustomerRestController {
                                    @PathVariable Long id) {
         customer.setId(id);
 
-        return repo.update(customer);
+        return customerRepo.update(customer);
     }
 
     @PostMapping("/create")
     @Transactional
     public Customer createCustomer(@RequestBody Customer customer) {
 
-        return repo.create(customer);
+        return customerRepo.create(customer);
     }
 
 }

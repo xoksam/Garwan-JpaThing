@@ -37,7 +37,6 @@ public class OrderRestController {
                              @RequestBody String title) {
 
         Customer customer = customerRepo.findById(customerId);
-        System.out.println("Customer: " + customer);
 
         if (customer == null) {
             throw new CustomNotFoundException("User with id " + customerId + " not found");

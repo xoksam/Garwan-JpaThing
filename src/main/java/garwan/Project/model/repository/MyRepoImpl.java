@@ -1,6 +1,6 @@
 package garwan.Project.model.repository;
 
-import org.springframework.transaction.annotation.Transactional;
+import garwan.Project.model.exceptions.CustomNotFoundException;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -34,6 +34,9 @@ public class MyRepoImpl<T> implements MyRepo<T> {
     @Override
     public T delete(long id) {
         T t = findById(id);
+
+        if (t == null) throw new CustomNotFoundException(clazz.getSimpleName() + " with id " + id + " not found");
+
         em.remove(t);
         return t;
     }
@@ -44,4 +47,5 @@ public class MyRepoImpl<T> implements MyRepo<T> {
 
         return query.getResultList();
     }
+
 }

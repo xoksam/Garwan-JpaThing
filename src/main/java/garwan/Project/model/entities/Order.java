@@ -22,6 +22,7 @@ public class Order {
     private String title;
 
     @ManyToOne
+    @JoinColumn(name = "customer_id")
     @Getter
     @Setter
     private Customer customer;

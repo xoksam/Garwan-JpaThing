@@ -4,12 +4,16 @@ import garwan.Project.model.exceptions.CustomNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 
@@ -22,7 +26,7 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
     public MyRepoImpl(EntityManager em, Class<T> clazz) {
         this.em = em;
         this.clazz = clazz;
-        this.SELECT_ALL_STATEMENT =  "SELECT e FROM " + clazz.getSimpleName() + " e ";
+        this.SELECT_ALL_STATEMENT = "SELECT e FROM " + clazz.getSimpleName() + " e ";
     }
 
     @Override
@@ -75,7 +79,23 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
 
         Long count = (Long) em.createQuery("SELECT COUNT(e) FROM " + this.clazz.getSimpleName() + " e " + whereStatement).getSingleResult();
 
-        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement);
+        String property = "";
+        String sortClause = "";
+
+        List<String> sortConditions = new ArrayList<>();
+
+        for (Sort.Order order : pageable.getSort()) {
+            property = order.getProperty();
+            sortConditions.add(order.getProperty() + " " + order.getDirection().toString());
+        }
+
+        for (int i = 0; i < sortConditions.size(); i++) {
+            sortClause += sortConditions.get(i) + (i == sortConditions.size() - 1 ? "" : ", ");
+        }
+
+        var sortString = (property.isBlank() ? "" : "ORDER BY " + sortClause);
+
+        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement + (pageable.isPaged() ? sortString : ""));
         if (pageable.isPaged()) {
             query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
             query.setMaxResults(pageable.getPageSize());

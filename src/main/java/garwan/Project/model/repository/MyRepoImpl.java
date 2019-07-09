@@ -95,7 +95,7 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
 
         var sortString = (property.isBlank() ? "" : "ORDER BY " + sortClause);
 
-        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement + (pageable.isPaged() ? sortString : ""));
+        var query = em.createQuery(SELECT_ALL_STATEMENT + whereStatement + sortString);
         if (pageable.isPaged()) {
             query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
             query.setMaxResults(pageable.getPageSize());

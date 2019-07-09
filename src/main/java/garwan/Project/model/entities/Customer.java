@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
@@ -15,14 +18,19 @@ public class Customer {
     @GeneratedValue
     @Getter
     @Setter
+    @Positive
     private Long id;
 
     @Getter
     @Setter
+    @NotNull
+    @Size(min = 2, max = 50)
     private String firstName;
 
     @Getter
     @Setter
+    @NotNull
+    @Size(min = 2, max = 50)
     private String lastName;
 
     @Getter

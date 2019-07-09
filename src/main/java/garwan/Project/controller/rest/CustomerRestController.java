@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
 
 import static garwan.Project.controller.rest.RestPathVariables.API_PREFIX;
 import static garwan.Project.controller.rest.RestPathVariables.CUSTOMER_PATH;
@@ -40,7 +40,7 @@ public class CustomerRestController {
 
     @PutMapping("/update/{id}")
     @Transactional
-    public Customer updateCustomer(@RequestBody Customer customer,
+    public Customer updateCustomer(@RequestBody @Valid Customer customer,
                                    @PathVariable Long id) {
         customer.setId(id);
 
@@ -48,7 +48,7 @@ public class CustomerRestController {
     }
 
     @PostMapping("/create")
-    public Customer createCustomer(@RequestBody Customer customer) {
+    public Customer createCustomer(@RequestBody @Valid Customer customer) {
 
         return customerRepo.create(customer);
     }

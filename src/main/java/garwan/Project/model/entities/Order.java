@@ -6,6 +6,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 @Entity
 @NoArgsConstructor
@@ -17,16 +21,21 @@ public class Order {
     @GeneratedValue
     @Getter
     @Setter
+    @Positive
     private Long id;
 
     @Getter
     @Setter
+    @NotNull
+    @Size(min = 3, max = 255)
     private String title;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
     @Getter
     @Setter
+    @NotNull
+    @Valid
     private Customer customer;
 
     public Order(String title, Customer customer) {

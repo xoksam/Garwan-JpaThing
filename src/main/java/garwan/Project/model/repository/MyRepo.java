@@ -14,8 +14,6 @@ public interface MyRepo<T, F> {
 
     List<T> listAll(F filter);
 
-//    List<T> removeAll(List<T> list);
-
     Page<T> listByPage(Pageable pageable);
 
     Page<T> listByPage(F filter, Pageable pageable);

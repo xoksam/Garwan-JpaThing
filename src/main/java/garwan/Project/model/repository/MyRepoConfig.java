@@ -14,8 +14,8 @@ public class MyRepoConfig {
 
     @Bean
     public MyRepo<Customer, CustomerRestController.Filter> customerMyRepoBean(EntityManager entityManager) {
-    return new MyRepoImpl<>(entityManager, Customer.class);
-}
+        return new MyRepoImpl<>(entityManager, Customer.class);
+    }
 
     @Bean
     public MyRepo<Order, OrderRestController.Filter> orderMyRepo(EntityManager entityManager) {

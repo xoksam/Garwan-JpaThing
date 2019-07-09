@@ -1,6 +1,6 @@
 package garwan.Project.model.repository;
 
-import garwan.Project.model.JPAQueryBuilder;
+import garwan.Project.model.utilities.JPAQueryBuilder;
 import garwan.Project.model.exceptions.CustomNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,7 +21,7 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
     public MyRepoImpl(EntityManager em, Class<T> clazz) {
         this.em = em;
         this.clazz = clazz;
-        this.queryBuilder = new JPAQueryBuilder(clazz, em);
+        this.queryBuilder = new JPAQueryBuilder<>(clazz, em);
     }
 
     @Override
@@ -60,7 +60,6 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
 
     @Override
     public Page<T> listByPage(Pageable pageable) {
-
         return listByPage(null, pageable);
     }
 

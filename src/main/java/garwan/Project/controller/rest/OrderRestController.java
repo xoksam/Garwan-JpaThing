@@ -45,5 +45,6 @@ public class OrderRestController {
     public static class Filter {
         public String title;
         public Long id;
+        public Customer customer;
     }
 }

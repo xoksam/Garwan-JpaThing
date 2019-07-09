@@ -30,7 +30,6 @@ public class CustomerRestController {
         return customerRepo.delete(id);
     }
 
-
     @GetMapping("/all")
     @Transactional
     public Page<Customer> getAllCustomers(Filter filter, Pageable pageable) {
@@ -43,13 +42,11 @@ public class CustomerRestController {
     public Customer updateCustomer(@RequestBody @Valid Customer customer,
                                    @PathVariable Long id) {
         customer.setId(id);
-
         return customerRepo.update(customer);
     }
 
     @PostMapping("/create")
     public Customer createCustomer(@RequestBody @Valid Customer customer) {
-
         return customerRepo.create(customer);
     }
 

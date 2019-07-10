@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class JPAQueryBuilder<T, F> {
@@ -27,75 +28,88 @@ public class JPAQueryBuilder<T, F> {
     }
 
     public Query createAllFilteredQuery(F filter) {
-        String whereStatement = createWhereStatement(filter);
+        String whereStatement = createStatement(filter, null, StatementType.Where);
 
         return em.createQuery(SELECT_ALL_STATEMENT + whereStatement, clazz);
     }
 
     public Query createCountQueryOfAllFilteredElements(F filter) {
-        String whereStatement = createWhereStatement(filter);
+        String whereStatement = createStatement(filter, null, StatementType.Where);
 
         return em.createQuery(COUNT_ALL_STATEMENT + whereStatement);
     }
 
     public Query getFilteredOrderByQuery(F filter, Pageable pageable) {
+        String orderByString = createStatement(filter, pageable, StatementType.OrderBy);
+        String whereStatement = createStatement(filter, pageable, StatementType.Where);
 
-        String sortString = createOrderByStatement(pageable);
-        String whereStatement = createWhereStatement(filter);
-
-        return em.createQuery(SELECT_ALL_STATEMENT + whereStatement + sortString);
+        return em.createQuery(SELECT_ALL_STATEMENT + whereStatement + orderByString);
     }
 
-    private String createOrderByStatement(Pageable pageable) {
-        List<String> sortConditions = new ArrayList<>();
+    private String createStatement(F filter, Pageable pageable, StatementType type) {
+        List<String> res = new ArrayList<>();
 
-        for (Sort.Order order : pageable.getSort())
-            sortConditions.add(order.getProperty() + " " + order.getDirection().toString());
-
-        var sortClause = String.join(", ", sortConditions);
-        return (sortClause.isBlank() ? "" : "ORDER BY " + sortClause);
-    }
-
-    private List<String> createComparisons(Object filter, boolean flag) {
-
-        List<String> comparisons = new ArrayList<>();
-
-        if (filter != null) {
-
-            for (Field f : filter.getClass().getDeclaredFields()) {
-                Object val = getValueFromField(filter, f);
-                String fieldValue = "";
-
-                if (isNumber(val)) {
-                    fieldValue = parseToLong((Number) val).toString();
-                } else if (isString(val)) {
-                    fieldValue = parseToString(val);
-                } else {
-                    List<String> toAdd = createComparisons(val, true);
-                    comparisons.addAll(toAdd);
-                }
-                if (fieldValue == null || fieldValue.isBlank()) {
-                    continue;
-                }
-                if (!flag) {
-                    comparisons.add("e." + f.getName() + " = '" + fieldValue + "'");
-                } else {
-                    comparisons.add("e." + filter.getClass().getSimpleName().toLowerCase() + '.' + f.getName() + " = '" + fieldValue + '\'');
-                }
-            }
+        if (type == StatementType.Where) {
+            if (filter == null) return "";
+            res = createComparisons(filter);
+        } else if (type == StatementType.OrderBy) {
+            res = createOrderByOperands(pageable);
         }
-        return comparisons;
-    }
 
-    private String createWhereStatement(F filter) {
-        if (filter == null) return "";
-
-        List<String> comparisons = createComparisons(filter, false);
-        // So there is no 'where' statement
-        if (comparisons.isEmpty()) {
+        if (res.isEmpty())
             return "";
+
+        return type.value + String.join(type.delimiter, res);
+    }
+
+    private List<String> createOrderByOperands(Pageable pageable) {
+        if (pageable == null)
+            return Collections.emptyList();
+
+        List<String> res = new ArrayList<>();
+        for (Sort.Order order : pageable.getSort())
+            res.add(order.getProperty() + " " + order.getDirection().toString());
+
+        return res;
+    }
+
+    private List<String> createComparisons(Object obj) {
+        return createComparisons(obj, "e");
+    }
+
+    private List<String> createComparisons(Object obj, String parent) {
+        if (obj == null)
+            return Collections.emptyList();
+
+        var objClass = obj.getClass();
+        var fields = objClass.getDeclaredFields();
+
+        List<String> res = new ArrayList<>();
+        for (var f : fields) {
+            var fieldValue = getValueFromField(obj, f);
+
+            if (fieldValue == null) continue;
+
+            if (isComplex(fieldValue)) {
+                res.addAll(createComparisons(fieldValue, parent + "." + f.getName()));
+                continue;
+            }
+
+            res.add(createComparison(f.getName(), fieldValue.toString(), parent));
         }
-        return "where " + String.join(" and ", comparisons);
+
+        return res;
+    }
+
+    private boolean isComplex(Object obj) {
+        return !(obj instanceof String || obj instanceof Number);
+    }
+
+    private String createComparison(String prop, String val, String parent) {
+        parent = parent.isBlank() ? "" : parent + ".";
+
+        var name = parent + prop;
+        return name + " = " + "'" + val + "'";
     }
 
     private Object getValueFromField(Object filter, Field f) {
@@ -107,19 +121,32 @@ public class JPAQueryBuilder<T, F> {
         }
     }
 
-    private boolean isNumber(Object o) {
-        return (o instanceof Number);
+    private enum StatementType {
+
+        Where("where ", " and "),
+        OrderBy("order by ", ", ");
+
+        public String value;
+        public String delimiter;
+
+        StatementType(String value, String delimiter) {
+            this.value = value;
+            this.delimiter = delimiter;
+        }
     }
 
-    private boolean isString(Object o) {
-        return o instanceof String;
-    }
-
-    private Long parseToLong(Number o) {
-        return o.longValue();
-    }
-
-    private String parseToString(Object val) {
-        return (String) val;
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -27,6 +27,8 @@ public class CustomerRestController {
     @DeleteMapping("/{id}")
     @Transactional
     public Customer deleteCustomer(@PathVariable Long id) {
+
+
         return customerRepo.delete(id);
     }
 

@@ -37,16 +37,19 @@ public class MyRepoImpl<T, F> implements MyRepo<T, F> {
     }
 
     public T findById(Long id) {
-        T t = em.find(clazz, id);
+        return em.find(clazz, id);
+    }
 
+    private T getById(Long id) {
+        T t = findById(id);
         if (t == null) throw new CustomNotFoundException(clazz, "id", id.toString());
         return t;
     }
 
     @Override
     @Transactional
-    public T delete(long id) {
-        T t = findById(id);
+    public T delete(Long id) {
+        T t = getById(id);
 
         em.remove(t);
         return t;

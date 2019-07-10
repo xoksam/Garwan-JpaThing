@@ -10,7 +10,7 @@ public interface MyRepo<T, F> {
 
     T update(T t);
 
-    T delete(long id);
+    T delete(Long id);
 
     List<T> listAll(F filter);
 
